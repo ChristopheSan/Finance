@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
                 String password = passwordEditText.getText().toString();
                 // TODO: Implement login logic here once we get real login
                 // For now, we'll just allow everything to get into the application
+                //
 
                 // Start the MainActivity
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
