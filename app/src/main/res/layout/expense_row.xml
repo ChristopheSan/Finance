@@ -13,7 +13,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp"
-        app:cardElevation="5dp"
+        app:cardElevation="6dp"
         >
 
 
@@ -37,7 +37,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginStart="10dp"
                 app:cardBackgroundColor="#FFFFFF"
-                app:cardElevation="01dp"
+                app:cardElevation="0dp"
                 app:layout_constraintStart_toEndOf="@+id/dateTextView"
                 app:layout_constraintTop_toTopOf="parent"
                 android:maxWidth="150dp"
