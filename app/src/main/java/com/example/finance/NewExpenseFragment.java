@@ -16,12 +16,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+
+
 public class NewExpenseFragment extends Fragment {
     Button datePickerButton;
-    TextView text;
+    TextView dateText;
 
     Button returnButton;
     Spinner categorySpinner;
@@ -50,7 +53,10 @@ public class NewExpenseFragment extends Fragment {
 
 
         // Date Picker Button
-        text = view.findViewById(R.id.date_picker_label);
+        dateText = view.findViewById(R.id.displayDateTextView);
+        Calendar calendar = Calendar.getInstance();
+        dateText.setText(((calendar.get(Calendar.MONTH) + 1) + "/" + calendar.get(Calendar.DAY_OF_MONTH) + "/" + calendar.get(Calendar.YEAR)));
+
         datePickerButton = view.findViewById(R.id.date_picker_button);
         datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,12 +72,18 @@ public class NewExpenseFragment extends Fragment {
     }
 
     private void openDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        int month = calendar.get(Calendar.MONTH); // Starts at 0
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        int year = calendar.get(Calendar.YEAR);
+
         DatePickerDialog dialog = new DatePickerDialog(this.getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                text.setText(String.valueOf(day) + "/" + String.valueOf(month) + "/" + String.valueOf(year));
+                month = month + 1;
+                dateText.setText((String.valueOf(month)) + "/" + String.valueOf(day) + "/" + String.valueOf(year));
             };
-        }, 2023, 0, 1);
+        }, year, month, day); // This is the initial date that is displayed/selected
 
         dialog.show();
     }
