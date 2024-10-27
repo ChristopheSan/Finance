@@ -5,14 +5,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +24,7 @@ public class NewExpenseFragment extends Fragment {
     TextView text;
 
     Button returnButton;
+    Spinner categorySpinner;
 
     ExpenseFragment parentFragment;
 
@@ -55,6 +59,9 @@ public class NewExpenseFragment extends Fragment {
             }
         });
 
+        // Initialize Category Spinner
+        initCategorySpinner(view);
+
         return view;
     }
 
@@ -77,7 +84,41 @@ public class NewExpenseFragment extends Fragment {
         parentFragment.setAlpha(1);
     }
 
+    private void initCategorySpinner(View thisView) {
+        SpendingCategoryMap categoryMap = new SpendingCategoryMap();
+        categorySpinner = thisView.findViewById(R.id.categorySpinner);
+
+        //Build String list of categories
+        ArrayList<String> categoryList = new ArrayList<>();
+        for (SpendingCategory category : SpendingCategory.values()) {
+            categoryList.add(categoryMap.getCategoryName(category));
+        }
+
+        ArrayAdapter spinnerAdapter = new ArrayAdapter(this.getContext(), android.R.layout.simple_spinner_dropdown_item, categoryList);
+        categorySpinner.setAdapter(spinnerAdapter);
+    }
+
     private class SpendingCategoryMap {
         public final Map<SpendingCategory, String> CATEGORY_MAP = new HashMap<>();
+
+        public SpendingCategoryMap() {
+            for (SpendingCategory category : SpendingCategory.values()) {
+                CATEGORY_MAP.put(category, category.toString());
+            }
+        }
+
+        public String getCategoryName(SpendingCategory category) {
+            return CATEGORY_MAP.get(category);
+        }
+
+        public SpendingCategory getSpendingCategory(String categoryName) {
+            for (Map.Entry<SpendingCategory, String> entry : CATEGORY_MAP.entrySet()) {
+                if (entry.getValue().equals(categoryName)) {
+                    return entry.getKey();
+                }
+            }
+            return null;
+        }
+
     }
 }
