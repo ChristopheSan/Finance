@@ -39,8 +39,11 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         setContentView(R.layout.activity_main);
 
         // Generating Test data - eventually this will be pull from a db...
-        expenseHolder.setExpenses(readExpenses());
+//        expenseHolder.setExpenses(readExpenses());
         generateBudgetItems();
+
+        // db test
+        retrieveExpensesFromDB();
 
         // Update Budget Items with correct usage
         userBudget.updateBudgetUsage(expenseHolder.getExpenses());
@@ -82,6 +85,15 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 //            Log.d("ExpenseHolder", e.toString());
 //        }
 
+    }
+
+    private void retrieveExpensesFromDB() {
+        DataBaseHelper db = new DataBaseHelper(this);
+        ArrayList<Expense> expenses = db.getAllExpenses();
+        for (Expense e : expenses) {
+            Log.d("ExpenseHolder", e.toString());
+        }
+        expenseHolder.setExpenses(expenses);
     }
 
     private ArrayList<Expense> readExpenses() {

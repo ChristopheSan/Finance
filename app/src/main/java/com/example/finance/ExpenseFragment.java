@@ -82,6 +82,11 @@ public class ExpenseFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public void addNewExpense(Expense newExpense) {
+        this.expenses.add(newExpense);
+        adapter.notifyDataSetChanged();
+    }
+
     public void setAlpha(float alpha) {
         parentLayout.setAlpha(alpha);
     }
@@ -95,5 +100,9 @@ public class ExpenseFragment extends Fragment {
         transaction.commit();
         parentLayout.setAlpha( (float) .1);
 
+    }
+
+    public ArrayList<Expense> getExpenses() {
+        return expenses;
     }
 }

@@ -11,7 +11,16 @@ public class UserBudget implements Parcelable {
     private double cycleAmount;
     private String name;
     private String description;
+    private ArrayList<Expense> expenses;
     private ArrayList<BudgetItem> budgetItems;
+
+    public ArrayList<Expense> getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(ArrayList<Expense> expenses) {
+        this.expenses = expenses;
+    }
 
     public UserBudget(int id, String name){
         this.id = id;

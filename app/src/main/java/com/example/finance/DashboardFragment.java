@@ -75,6 +75,23 @@ public class DashboardFragment extends Fragment {
         return null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateQuickGlance();
+    }
+
+    public void update(ArrayList<Expense> expenses) {
+        userBudget.updateBudgetUsage(expenses);
+        refresh();
+    }
+
+    public void refresh() {
+        updateQuickGlance();
+        buildPieChart();
+        pieChart.invalidate();
+    }
+
     private void updateQuickGlance() {
         // Update the quick glance text views
 

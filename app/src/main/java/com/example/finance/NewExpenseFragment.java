@@ -148,6 +148,11 @@ public class NewExpenseFragment extends Fragment {
         resetTextFields();
         Toast.makeText(getContext(), "New Expense Added", Toast.LENGTH_SHORT).show();
 
+        //update the expense list
+        parentFragment.addNewExpense(newExpense);
+
+        //Update Dashboard
+        ArrayList<Expense> expenses = parentFragment.getExpenses();
 
     }
 
@@ -162,7 +167,11 @@ public class NewExpenseFragment extends Fragment {
 
     private void sendToDB(Expense newExpense) {
         // TODO: Send to DB
-
+        DataBaseHelper db = new DataBaseHelper(getContext());
+        boolean success = db.addExpense(newExpense);
+        if (success) {
+            // update main expenses
+        }
     }
 
     private void openDatePicker() {

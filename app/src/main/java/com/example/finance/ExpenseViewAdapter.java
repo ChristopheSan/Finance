@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.ExpenseViewHolder> {
@@ -34,9 +35,12 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         final Expense expense = expenses.get(position);
         double amount = expense.getAmount();
 
+        DecimalFormat formatter = new DecimalFormat("#.00");
+        String formattedAmount = formatter.format(amount);
+
         holder.dateTextView.setText(expense.getDateString());
         //holder.descriptionTextView.setText(expense.getDescription());
-        holder.amountTextView.setText("$ " + Double.toString(amount));
+        holder.amountTextView.setText("$ " + formattedAmount);
         holder.vendorTextView.setText(expense.getVendor());
         holder.categoryTextView.setText(expense.getCategory().toString());
     }
