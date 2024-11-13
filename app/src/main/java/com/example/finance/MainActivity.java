@@ -40,13 +40,13 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
         // Generating Test data - eventually this will be pull from a db...
 //        expenseHolder.setExpenses(readExpenses());
-        generateBudgetItems();
+        //generateBudgetItems();
 
         // db test
         retrieveExpensesFromDB();
 
         // Update Budget Items with correct usage
-        userBudget.updateBudgetUsage(expenseHolder.getExpenses());
+        //userBudget.updateBudgetUsage(expenseHolder.getExpenses());
 
         expenseFragment = ExpenseFragment.newInstance(expenseHolder.getExpenses());
         budgetFragment = BudgetFragment.newInstance(userBudget);
@@ -128,9 +128,11 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         return expenses;
     }
 
-    private void generateBudgetItems() {
-        ArrayList<BudgetItem> budgetItems = ExpenseUtils.generateSampleBudget();
-        userBudget.setBudgetItems(budgetItems);
-        userBudget.setCycleAmount(3000.00);
-    }
+    // moving this to UserBudget Repo because we're generating everything there.
+//    private void generateBudgetItems() {
+//        ArrayList<BudgetItem> budgetItems = ExpenseUtils.generateSampleBudget();
+//        userBudget.setBudgetItems(budgetItems);
+//        userBudget.setCycleAmount(3000.00);
+//    }
+
 }
