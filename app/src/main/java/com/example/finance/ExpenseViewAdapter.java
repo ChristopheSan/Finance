@@ -50,6 +50,11 @@ public class ExpenseViewAdapter extends RecyclerView.Adapter<ExpenseViewAdapter.
         return expenses.size();
     }
 
+    public void setExpenses(ArrayList<Expense> expenses) {
+        this.expenses = expenses;
+        notifyDataSetChanged();
+    }
+
     public static class ExpenseViewHolder extends RecyclerView.ViewHolder {
         public TextView dateTextView;
        // public TextView descriptionTextView;
