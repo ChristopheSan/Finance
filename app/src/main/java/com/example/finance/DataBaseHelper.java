@@ -76,9 +76,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         String queryString = "SELECT * FROM " + TABLE_EXPENSE_TABLE;
 
         SQLiteDatabase db = this.getReadableDatabase();
-
+        Cursor cursor = null;
         try {
-            Cursor cursor = db.rawQuery(queryString, null);
+             cursor = db.rawQuery(queryString, null);
             if (cursor.moveToFirst()) {
                 // Create expense for each row in the result set
                 do {
@@ -101,10 +101,9 @@ public class DataBaseHelper extends SQLiteOpenHelper {
             Log.wtf("Expense Database", "Error in expense table row");
         }
         finally {
-            db.close();
+            if (cursor != null)
+                cursor.close();
         }
-
-
         return list;
     }
 }
