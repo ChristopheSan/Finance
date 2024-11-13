@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -42,7 +43,9 @@ public class NewExpenseFragment extends Fragment {
     Button submitButton;
     DatePickerDialog datePicker;
 
-    ExpenseFragment parentFragment;
+    ExpenseFragment parentFragment; // probably not needed anymore after switching to viewmodel
+
+    ExpenseViewModel expenseViewModel;
 
     public NewExpenseFragment( ExpenseFragment parentFragment)  {
         this.parentFragment = parentFragment;
@@ -53,6 +56,7 @@ public class NewExpenseFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.new_expense_layout, container, false);
 
+        expenseViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
 
         // Return Button to go back to the expense view screen
         returnButton = view.findViewById(R.id.returnButton);
@@ -72,7 +76,7 @@ public class NewExpenseFragment extends Fragment {
         // Date Picker Button
         dateText = view.findViewById(R.id.displayDateTextView);
         Calendar calendar = Calendar.getInstance();
-        dateText.setText(((calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR)));
+        setDateText(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR));
 
         datePickerButton = view.findViewById(R.id.date_picker_button);
         datePickerButton.setOnClickListener(new View.OnClickListener() {
@@ -98,8 +102,20 @@ public class NewExpenseFragment extends Fragment {
         return view;
     }
 
+    private void setDateText(int month, int day, int year)  {
+        // ensure we always have 2 digit month and Day of Month
+        String strDay = day + "";
+        String strMonth = (month+1) + "";
+        if (strDay.length() == 1) {
+            strDay = "0" + day;
+        }
+        if (strMonth.length() == 1) {
+            strMonth = "0" + month;
+        }
+        dateText.setText(strMonth + "-" + strDay + "-" + year);
+    }
+
     private void buildAndSubmitExpense() {
-        Expense expense = new Expense();
         //
 
         LocalDate date = LocalDate.parse(dateText.getText().toString(), DateTimeFormatter.ofPattern("MM-dd-yyyy"));
@@ -144,15 +160,21 @@ public class NewExpenseFragment extends Fragment {
         Expense newExpense = new Expense(date, description, vendor, amount, category);
         Log.d("New Expense", newExpense.toString());
 
-        sendToDB(newExpense);
+        //sendToDB(newExpense);
+        // instead...
+        expenseViewModel.addExpense(newExpense);
+        //expenseViewModel.notifyAll();
+
+
         resetTextFields();
         Toast.makeText(getContext(), "New Expense Added", Toast.LENGTH_SHORT).show();
 
-        //update the expense list
-        parentFragment.addNewExpense(newExpense);
-
-        //Update Dashboard
-        ArrayList<Expense> expenses = parentFragment.getExpenses();
+        // we dont need to do this anymore since we switched to the view model
+//        //update the expense list
+//        parentFragment.addNewExpense(newExpense);
+//
+//        //Update Dashboard
+//        ArrayList<Expense> expenses = parentFragment.getExpenses();
 
     }
 
@@ -162,7 +184,7 @@ public class NewExpenseFragment extends Fragment {
         vendorEditText.setText("");
 
         Calendar calendar = Calendar.getInstance();
-        dateText.setText(((calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH) + "-" + calendar.get(Calendar.YEAR)));
+        setDateText(calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.YEAR));
     }
 
     private void sendToDB(Expense newExpense) {
@@ -183,18 +205,19 @@ public class NewExpenseFragment extends Fragment {
         DatePickerDialog dialog = new DatePickerDialog(this.getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                month = month + 1;
-                dateText.setText((String.valueOf(month)) + "-" + String.valueOf(day) + "-" + String.valueOf(year));
+                setDateText(month,day,year);
+                //dateText.setText((String.valueOf(month)) + "-" + String.valueOf(day) + "-" + String.valueOf(year));
             };
         }, year, month, day); // This is the initial date that is displayed/selected
 
         dialog.show();
     }
 
+    // Return to expense view screen - used with the return button.
     private void returnToExpenseView() {
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.remove(this);
+        transaction.replace(R.id.fragment_container, parentFragment);
         transaction.commit();
         parentFragment.setAlpha(1);
     }
