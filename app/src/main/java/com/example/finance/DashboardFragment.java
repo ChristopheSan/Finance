@@ -7,6 +7,9 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
@@ -23,12 +26,16 @@ import android.widget.TextView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class DashboardFragment extends Fragment {
     private UserBudget userBudget;
     private PieChart pieChart;
     private View view = null;
+
+    private UserBudgetViewModel userBudgetViewModel;
+    private ExpenseViewModel expenseViewModel;
 
     public DashboardFragment() {
         // Required empty public constructor
@@ -46,37 +53,82 @@ public class DashboardFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         try {
-
-
             // Inflate the layout for this fragment
             view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
-            // Retrieve the userBudget from the arguments
-            if (getArguments() != null) {
-                userBudget = getArguments().getParcelable("userBudget");
-            } else {
-                userBudget = new UserBudget(0, "Default Budget"); // this shouldn't happen
-                // if there's an error at some point it's probably because no budgetItems
-                // TODO: handle this error better
+            // Initialize the ViewModels
+            userBudgetViewModel = new ViewModelProvider(requireActivity()).get(UserBudgetViewModel.class);
+            expenseViewModel = new ViewModelProvider(requireActivity()).get(ExpenseViewModel.class);
+
+            // Initialize UI components
+            pieChart = view.findViewById(R.id.spendingPieChart);
+
+            // Observe the UserBudget LiveData
+            userBudgetViewModel.getBudget().observe(getViewLifecycleOwner(), new Observer<UserBudget>() {
+                @Override
+                public void onChanged(UserBudget userBudget) {
+                    if (userBudget != null) {
+                        DashboardFragment.this.userBudget = userBudget;
+                        updateQuickGlance();
+                        buildPieChart();
+                        pieChart.invalidate();
+                    }
+                }
+            });
+
+            // Observe the Expense LiveData
+            expenseViewModel.getExpenses().observe(getViewLifecycleOwner(), new Observer<List<Expense>>() {
+                        @Override
+                        public void onChanged(List<Expense> expenses) {
+                            if (userBudget != null) {
+                                userBudgetViewModel.updateBudget();
+                            }
+                        }
+        });
+
+
+            UserBudget currentBudget = userBudgetViewModel.getBudget().getValue();
+            if (currentBudget != null) {
+                DashboardFragment.this.userBudget = currentBudget;
+                updateQuickGlance();
+                buildPieChart();
+                pieChart.invalidate();
             }
 
-            pieChart = view.findViewById(R.id.spendingPieChart);
-            buildPieChart();
-
-            updateQuickGlance();
-
-            // Set up the pie chart
             return view;
-        } catch (Exception e){
-            Log.wtf("DashboardFragment", "Something went very wrong" + e.getMessage());
+        } catch (Exception e) {
+            Log.wtf("DashboardFragment", "Something went very wrong: " + e.getMessage());
             e.printStackTrace();
         }
 
         return null;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateQuickGlance();
+        refresh();
+    }
+
+    public void update(ArrayList<Expense> expenses) {
+        //userBudget.updateBudgetUsage(expenses);
+        refresh();
+    }
+
+    public void refresh() {
+        updateQuickGlance();
+        buildPieChart();
+        pieChart.invalidate();
+    }
+
+
     private void updateQuickGlance() {
         // Update the quick glance text views
+
+        if (userBudget == null) {
+            return;
+        }
 
         // Utilization
         TextView utilizationVal = view.findViewById(R.id.currentUtilizationValueTextView);
@@ -90,8 +142,10 @@ public class DashboardFragment extends Fragment {
             unallocated = userBudget.getBudgetItem(SpendingCategory.Other);
         }
         else {
-            Log.wtf("DashboardFragment", "No unallocated BudgetItem we have an issue");
-            exit(0);
+            unallocated = new BudgetItem(0, "Unallocated Spending", 0, SpendingCategory.Other);
+            userBudget.addBudgetItem(unallocated);
+//            Log.wtf("DashboardFragment", "No unallocated BudgetItem we have an issue");
+//            exit(0);
         }
         unallocatedVal.setText(String.format("$ %.2f", unallocated.getUsedAmount()));
 
@@ -108,6 +162,7 @@ public class DashboardFragment extends Fragment {
         numUnderutilizedVal.setText(String.valueOf(userBudget.getNumberOfUnderutilizedItems()));
     }
     private void buildPieChart() {
+
         PieDataSet pieDataSet = new PieDataSet(getPieEntries(), "Current Spending");
         pieDataSet.setSliceSpace(3f);
         pieDataSet.setValueTextSize(16f);
@@ -137,6 +192,7 @@ public class DashboardFragment extends Fragment {
     }
 
     private ArrayList<PieEntry> getPieEntries() {
+        userBudget.updateBudgetUsage(userBudget.getExpenses());
         ArrayList<PieEntry> pieEntries = new ArrayList<>();
         for (BudgetItem item : userBudget.getBudgetItems()) {
             pieEntries.add(new PieEntry((float) item.getUsedAmount(), item.getLabel()));

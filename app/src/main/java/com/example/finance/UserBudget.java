@@ -8,10 +8,19 @@ import android.os.Parcelable;
 
 public class UserBudget implements Parcelable {
     private int id;
-    private double cycleAmount;
+    private double cycleAmount; // this is the amount per cycle (i.e. $4000 for a single month)
     private String name;
     private String description;
+    private ArrayList<Expense> expenses;
     private ArrayList<BudgetItem> budgetItems;
+
+    public ArrayList<Expense> getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(ArrayList<Expense> expenses) {
+        this.expenses = expenses;
+    }
 
     public UserBudget(int id, String name){
         this.id = id;
@@ -41,6 +50,18 @@ public class UserBudget implements Parcelable {
         this.description = description;
         this.cycleAmount = cycleAmount;
     }
+
+    public UserBudget(int id, double cycleAmount, String name,
+                      String description, ArrayList<Expense> expenses, ArrayList<BudgetItem> budgetItems) {
+        this.id = id;
+        this.name = name;
+        this.budgetItems = budgetItems;
+        this.description = description;
+        this.cycleAmount = cycleAmount;
+        this.expenses = expenses;
+    }
+
+
 
     protected UserBudget(Parcel in) {
         id = in.readInt();
@@ -156,24 +177,19 @@ public class UserBudget implements Parcelable {
         // Calculate the total amount spent in each category
         // Also calculate unallocated spending into a new budget item
         Set<SpendingCategory> categories = getCategories();
-        BudgetItem unallocated = new BudgetItem(0, "Unallocated Spending", 0, SpendingCategory.Other);
 
-        for (Expense expense : expenses) {
-            if ( categories.contains(expense.getCategory()) ){ // If the expense is in the budget
-                // Find the budget item that corresponds to the expense
-                for (BudgetItem item : budgetItems) {
-                    if (item.getCategory() == expense.getCategory()) {
-                        item.addToUsedAmount(expense.getAmount());
-                    }
+
+        BudgetItem unallocated = budgetItems.get(budgetItems.size() - 1); // Get the unallocated item (last item in the list)
+
+        for (BudgetItem item : budgetItems) {
+            item.setUsedAmount(0);
+            // find the expenses that are in the budget and add them to the used amount
+            for (Expense expense : expenses) {
+                if ( expense.getCategory() == item.getCategory() ){ // If the expense is in the budget
+                    item.addToUsedAmount(expense.getAmount());
                 }
             }
-
-            else { // If the expense is not in the budget
-                unallocated.addToUsedAmount(expense.getAmount());
-            }
         }
-        // Add the unallocated item to the budget
-        budgetItems.add(unallocated);
     }
 
     private Set<SpendingCategory> getCategories() {

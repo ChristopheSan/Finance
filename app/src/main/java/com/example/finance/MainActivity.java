@@ -39,11 +39,14 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         setContentView(R.layout.activity_main);
 
         // Generating Test data - eventually this will be pull from a db...
-        expenseHolder.setExpenses(readExpenses());
-        generateBudgetItems();
+//        expenseHolder.setExpenses(readExpenses());
+        //generateBudgetItems();
+
+        // db test
+        retrieveExpensesFromDB();
 
         // Update Budget Items with correct usage
-        userBudget.updateBudgetUsage(expenseHolder.getExpenses());
+        //userBudget.updateBudgetUsage(expenseHolder.getExpenses());
 
         expenseFragment = ExpenseFragment.newInstance(expenseHolder.getExpenses());
         budgetFragment = BudgetFragment.newInstance(userBudget);
@@ -84,6 +87,15 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
 
     }
 
+    private void retrieveExpensesFromDB() {
+        DataBaseHelper db = new DataBaseHelper(this);
+        ArrayList<Expense> expenses = db.getAllExpenses();
+        for (Expense e : expenses) {
+            Log.d("ExpenseHolder", e.toString());
+        }
+        expenseHolder.setExpenses(expenses);
+    }
+
     private ArrayList<Expense> readExpenses() {
         ArrayList<Expense> expenses = new ArrayList<Expense>();
         // Read expenses from b1data.csv file
@@ -116,9 +128,11 @@ public class MainActivity extends AppCompatActivity implements NavigationBarView
         return expenses;
     }
 
-    private void generateBudgetItems() {
-        ArrayList<BudgetItem> budgetItems = ExpenseUtils.generateSampleBudget();
-        userBudget.setBudgetItems(budgetItems);
-        userBudget.setCycleAmount(3000.00);
-    }
+    // moving this to UserBudget Repo because we're generating everything there.
+//    private void generateBudgetItems() {
+//        ArrayList<BudgetItem> budgetItems = ExpenseUtils.generateSampleBudget();
+//        userBudget.setBudgetItems(budgetItems);
+//        userBudget.setCycleAmount(3000.00);
+//    }
+
 }

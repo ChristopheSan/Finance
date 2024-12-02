@@ -21,6 +21,11 @@ public class BudgetViewAdapter extends RecyclerView.Adapter<BudgetViewAdapter.Bu
         this.budgetItems = budgetItems;
     }
 
+    public BudgetViewAdapter(Context context) {
+        this.context = context;
+        this.budgetItems = new ArrayList<>();
+    }
+
     @NonNull
     @Override
     public BudgetViewAdapter.BudgetViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -39,6 +44,10 @@ public class BudgetViewAdapter extends RecyclerView.Adapter<BudgetViewAdapter.Bu
         holder.usedAmountTextView.setText(String.format("%.2f", budgetItem.getUsedAmount()));
         holder.remainingAmountTextView.setText(String.format("%.2f", remainingAmount));
 
+    }
+    public void setBudgetItems(ArrayList<BudgetItem> budgetItems) {
+        this.budgetItems = budgetItems;
+        notifyDataSetChanged();
     }
 
     @Override

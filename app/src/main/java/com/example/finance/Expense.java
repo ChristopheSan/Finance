@@ -107,6 +107,13 @@ public class Expense implements Parcelable {
         return str;
     }
 
+    public String toSQLDateString(){
+        // Needs to be in YYYY-MM-DD format
+        // LocalDate default is YYYY-MM-DD
+        return date.toString();
+
+    }
+
     @Override
     public int describeContents() {
         return 0;
